@@ -1,5 +1,3 @@
-// @flow
-
 const photoFileExtensions=[
   'jpg',
   'png',
@@ -8,11 +6,11 @@ const photoFileExtensions=[
   'tiff'
 ];
 
-function getFileExtension(fileName: string) {
+function getFileExtension(fileName) {
   return fileName.split('.').pop();
 }
 
-function isJpegFile(fileName: string) {
+function isJpegFile(fileName) {
   const ext = getFileExtension(fileName.toLowerCase());
   if ( (['jpg'].indexOf(ext)) >= 0) {
     return true;
@@ -22,7 +20,7 @@ function isJpegFile(fileName: string) {
   }
 }
 
-function isPhotoFile(fileName: string) {
+function isPhotoFile(fileName) {
   const ext = getFileExtension(fileName.toLowerCase());
   if ( (photoFileExtensions.indexOf(ext)) >= 0) {
     return true;
@@ -32,12 +30,12 @@ function isPhotoFile(fileName: string) {
   }
 }
 
-function isPhoto(photo: Object) {
+function isPhoto(photo) {
   const fileName = photo.title[0]._;
   return isPhotoFile(fileName);
 }
 
-function getDateFromString(dateTimeStr: string) {
+function getDateFromString(dateTimeStr) {
   const year = Number(dateTimeStr.substring(0, 4));
   const month = Number(dateTimeStr.substring(5, 7)) - 1;
   const day = Number(dateTimeStr.substring(8, 10));

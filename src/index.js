@@ -5,6 +5,7 @@ const fs = require('fs');
 const readline = require('readline');
 const nodeDir = require('node-dir');
 
+import { DrivePhoto } from './entities/drivePhoto';
 import * as utils from './utils/utils';
 
 function getRootFolder() {
@@ -19,7 +20,8 @@ function getRootFolder() {
   // /Users/tedshaffer/Documents/Projects/testPhotos
 
   return new Promise( (resolve, reject) => {
-    resolve("/Users/tedshaffer/Documents/Projects/testPhotos");
+    // resolve("/Users/tedshaffer/Documents/Projects/testPhotos");
+    resolve("C:\\Users\\Ted\\Documents\\testPhotos");
   });
 }
 
@@ -40,15 +42,16 @@ function getPhotoFiles(allFiles) {
 }
 
 
-import { DrivePhoto } from './entities/drivePhoto';
-
 function buildDFDb(photoFilePaths) {
 
-  let dfsToProcess: Array<DrivePhoto> [];
+  let drivePhotos = [];
   photoFilePaths.forEach( (photoFilePath) => {
-    df: DrivePhoto = new DrivePhoto(photoFilePath);
-    dfsToProcess.push(df);
+    const df = new DrivePhoto(photoFilePath);
+    drivePhotos.push(df);
   })
+
+  // for testing a subset of all the files.
+  // drivePhotos = drivePhotos.slice(0, 20);
 
 }
 /*************************************************************************************************

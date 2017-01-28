@@ -1,16 +1,6 @@
-// @flow
-
 export class DrivePhoto {
 
-  path: string;
-  dimensions: ?Object;
-  // https://flowtype.org/docs/nullable-types.html
-  lastModified: ?Date = null;
-  lastModifiedISO: string;
-  exifCreateDate: string;
-  exifDateTimeOriginal: string;
-
-  constructor(path: string) {
+  constructor(path) {
     this.path = path;
     this.dimensions = {};
     this.lastModified = null;
@@ -19,61 +9,61 @@ export class DrivePhoto {
     this.exifDateTimeOriginal = '';
   }
 
-  getPath(): string {
+  getPath() {
     return this.path;
   }
 
-  setDimensions(dimensions: ?Object) {
+  setDimensions(dimensions) {
     this.dimensions = dimensions;
   }
 
-  getDimensions(): ?Object {
+  getDimensions() {
     return this.dimensions;
   }
 
-  getWidth(): number {
+  getWidth() {
     if (this.dimensions) {
       return this.dimensions.width;
     }
     return -1;
   }
 
-  getHeight(): number {
+  getHeight() {
     if (this.dimensions) {
       return this.dimensions.height;
     }
     return -1;
   }
 
-  setLastModified(lastModified: Date) {
+  setLastModified(lastModified) {
     this.lastModified = lastModified;
   }
 
-  getLastModified(): ?Date {
+  getLastModified() {
     return this.lastModified;
   }
 
-  setLastModifiedISO(lastModifiedISO: string) {
+  setLastModifiedISO(lastModifiedISO) {
     this.lastModifiedISO = lastModifiedISO;
   }
 
-  getLastModifiedISO(): string {
+  getLastModifiedISO() {
     return this.lastModifiedISO;
   }
 
-  setExifCreateDate(exifCreateDate: string) {
+  setExifCreateDate(exifCreateDate) {
     this.exifCreateDate = exifCreateDate;
   }
 
-  getExifCreateDate(): string {
+  getExifCreateDate() {
     return this.exifCreateDate;
   }
 
-  setExifDateTimeOriginal(exifDateTimeOriginal: string) {
+  setExifDateTimeOriginal(exifDateTimeOriginal) {
     this.exifDateTimeOriginal = exifDateTimeOriginal;
   }
 
-  getExifDateTimeOriginal(): string {
+  getExifDateTimeOriginal() {
     return this.exifDateTimeOriginal;
   }
 }

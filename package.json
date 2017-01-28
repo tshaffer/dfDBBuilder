@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --config ./webpack.config.js --watch",
     "run": "node build/bundle.js",
-    "flow": "flow check"
+    "flow_check": "flow check || exit 0"
   },
   "author": "Ted Shaffer",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "eslint": "^3.14.1",
     "eslint-loader": "^1.6.1",
     "eslint-plugin-react": "^6.9.0",
+    "flow": "^0.2.3",
     "webpack": "^1.14.0"
   },
   "dependencies": {
