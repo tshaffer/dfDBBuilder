@@ -1,6 +1,6 @@
 module.exports = {
 
-  entry: './app.js',
+  entry: './index.js',
   target: 'node',
   output: {
     path: './build',
