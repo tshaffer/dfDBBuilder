@@ -41,6 +41,8 @@ function getPhotoFiles(allFiles) {
 
 
 function hashDF(df) {
+
+  console.log("hashDF invoked - hash file: ", df.getPath());
   return new Promise( (resolve, reject) => {
     Jimp.read(df.getPath()).then((image) => {
       const hashValue = image.hash(2);
@@ -59,21 +61,32 @@ function processDF(df) {
       df.setHash(hashValue);
 
       // send step - get exif dates
+
+      // after all steps are complete, resolve
+      resolve();
     })
   });
 }
 
 let dfsToProcess = [];
 function processDFs() {
-  if (dfsToProcess.length > 0) {
-    let dfToProcess = dfsToProcess.shift();
-    processDF(dfToProcess).then( () => {
-      processDFs();
-    }).catch( (err) => {
-
-    });
-  }
+  return new Promise( (resolve, reject) => {
+    if (dfsToProcess.length > 0) {
+      let dfToProcess = dfsToProcess.shift();
+      processDF(dfToProcess).then( () => {
+        console.log("remaining df's to process: ", dfsToProcess.length);
+        processDFs();
+      }).catch( (err) => {
+        reject(err);
+      });
+    }
+    else {
+      debugger;
+      resolve();
+    }
+  });
 }
+
 function buildDFDb(photoFilePaths) {
 
   photoFilePaths.forEach( (photoFilePath) => {
@@ -81,9 +94,16 @@ function buildDFDb(photoFilePaths) {
     dfsToProcess.push(df);
   })
 
-  // for testing a subset of all the files.
+  // only test a subset of all the files.
   dfsToProcess = dfsToProcess.slice(0, 20);
 
+  processDFs().then( () => {
+    console.log("processDFs complete");
+    debugger;
+  }).catch( (err) => {
+    console.log(err);
+    debugger;
+  });
 }
 /*************************************************************************************************
  *
