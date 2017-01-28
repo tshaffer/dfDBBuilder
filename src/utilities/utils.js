@@ -2,8 +2,8 @@ const photoFileExtensions=[
   'jpg',
   'png',
   // 'psd',
-  'tif',
-  'tiff'
+  // 'tif',
+  // 'tiff'
 ];
 
 function getFileExtension(fileName) {

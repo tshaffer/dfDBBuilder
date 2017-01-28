@@ -1,12 +1,11 @@
-// @flow
-
 const path = require('path');
 const fs = require('fs');
+const Jimp = require("jimp");
 const readline = require('readline');
 const nodeDir = require('node-dir');
 
 import { DrivePhoto } from './entities/drivePhoto';
-import * as utils from './utils/utils';
+import * as utils from './utilities/utils';
 
 function getRootFolder() {
 
@@ -37,21 +36,53 @@ function getAllFiles(rootFolder) {
 
 
 function getPhotoFiles(allFiles) {
-  let photoFiles = allFiles.filter(utils.isPhotoFile);
-  return photoFiles;
+  return allFiles.filter(utils.isPhotoFile);
 }
 
 
+function hashDF(df) {
+  return new Promise( (resolve, reject) => {
+    Jimp.read(df.getPath()).then((image) => {
+      const hashValue = image.hash(2);
+      resolve(hashValue);
+    }).catch( (err) => {
+      reject(err);
+    });
+  });
+}
+
+function processDF(df) {
+  return new Promise( (resolve, reject) => {
+
+    // first step - get hash
+    hashDF(df).then( (hashValue) => {
+      df.setHash(hashValue);
+
+      // send step - get exif dates
+    })
+  });
+}
+
+let dfsToProcess = [];
+function processDFs() {
+  if (dfsToProcess.length > 0) {
+    let dfToProcess = dfsToProcess.shift();
+    processDF(dfToProcess).then( () => {
+      processDFs();
+    }).catch( (err) => {
+
+    });
+  }
+}
 function buildDFDb(photoFilePaths) {
 
-  let drivePhotos = [];
   photoFilePaths.forEach( (photoFilePath) => {
     const df = new DrivePhoto(photoFilePath);
-    drivePhotos.push(df);
+    dfsToProcess.push(df);
   })
 
   // for testing a subset of all the files.
-  // drivePhotos = drivePhotos.slice(0, 20);
+  dfsToProcess = dfsToProcess.slice(0, 20);
 
 }
 /*************************************************************************************************
@@ -66,5 +97,6 @@ getRootFolder().then( (rootFolder) => {
   getAllFiles(rootFolder).then( (allFiles) => {
     let photoFilePaths = getPhotoFiles(allFiles);
     console.log("Photos on drive: ", photoFilePaths.length);
+    buildDFDb(photoFilePaths);
   })
 })

@@ -26,6 +26,8 @@
     "body-parser": "^1.16.0",
     "exif": "^0.6.0",
     "express": "^4.14.0",
+    "jimp": "^0.2.27",
+    "json-loader": "^0.5.4",
     "node-dir": "^0.1.16",
     "readline-sync": "^1.4.5"
   }
