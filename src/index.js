@@ -183,6 +183,13 @@ function buildDFDb(photoFilePaths) {
     debugger;
   });
 }
+
+let existingProcessedDFs = {};
+function readExistingData() {
+  const existingProcessedDFsStr = fs.readFileSync("dfDB.json");
+  existingProcessedDFs = JSON.parse(existingProcessedDFsStr);
+}
+
 /*************************************************************************************************
  *
  *   PROGRAM START
@@ -190,6 +197,8 @@ function buildDFDb(photoFilePaths) {
  ************************************************************************************************/
 console.log("dfDBBBuilder - start");
 console.log("__dirname: ", __dirname);
+
+readExistingData();
 
 getRootFolder().then( (rootFolder) => {
   getAllFiles(rootFolder).then( (allFiles) => {
