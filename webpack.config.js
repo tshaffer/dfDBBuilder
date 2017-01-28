@@ -7,6 +7,9 @@ module.exports = {
     filename: 'bundle.js'
   },
   devtool: "source-map",
+  watchOptions: {
+    poll: true
+  },
   module: {
     preLoaders: [
       {
@@ -22,7 +25,7 @@ module.exports = {
         loader: 'babel-loader',
         exclude: /node_modules/,
         query: {
-          presets: ['es2015']
+          presets: ['react', 'es2015', 'stage-0']
         }
       },
       {

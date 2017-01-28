@@ -1,14 +1,30 @@
+const sizeOf = require('image-size');
+
 export class DrivePhoto {
 
   constructor(path) {
     this.path = path;
     this.hash = '';
-    this.dimensions = {};
+    this.dimensions = this.getPhotoDimensions(path);
     this.lastModified = null;
     this.lastModifiedISO = '';
     this.exifCreateDate = '';
     this.exifDateTimeOriginal = '';
   }
+
+  getPhotoDimensions(photoFilePath) {
+
+    let dimensions = null;
+
+    try {
+      dimensions = sizeOf(photoFilePath);
+    } catch (sizeOfError) {
+      console.log(sizeOfError, " invoking sizeOf on: ", photoFilePath);
+    }
+
+    return dimensions;
+  }
+
 
   getPath() {
     return this.path;

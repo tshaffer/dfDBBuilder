@@ -5,6 +5,8 @@ const readline = require('readline');
 const nodeDir = require('node-dir');
 
 import { DrivePhoto } from './entities/drivePhoto';
+import * as dateMatcher from './utilities/dateMatcher';
+
 import * as utils from './utilities/utils';
 
 function getRootFolder() {
@@ -60,20 +62,30 @@ function processDF(df) {
     hashDF(df).then( (hashValue) => {
       df.setHash(hashValue);
 
-      // send step - get exif dates
+      // next step - get date/times
 
-      // after all steps are complete, resolve
-      resolve();
+      dateMatcher.getDFDateTimes(df).then( () => {
+
+        // after all steps are complete, resolve
+        resolve(df);
+
+      }).catch( (err) => {
+        reject(err);
+      });
     })
   });
 }
 
 let dfsToProcess = [];
+let processedDFs = [];
 function processDFs() {
   return new Promise( (resolve, reject) => {
     if (dfsToProcess.length > 0) {
       let dfToProcess = dfsToProcess.shift();
-      processDF(dfToProcess).then( () => {
+      processDF(dfToProcess).then( (processedDF) => {
+        console.log('completed processing:');
+        console.log(processedDF);
+        processedDFs.push(processedDF);
         console.log("remaining df's to process: ", dfsToProcess.length);
         processDFs();
       }).catch( (err) => {
@@ -95,7 +107,7 @@ function buildDFDb(photoFilePaths) {
   })
 
   // only test a subset of all the files.
-  dfsToProcess = dfsToProcess.slice(0, 20);
+  dfsToProcess = dfsToProcess.slice(0, 5);
 
   processDFs().then( () => {
     console.log("processDFs complete");
