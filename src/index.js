@@ -12,6 +12,22 @@ import { convertPhoto } from './utilities/photoUtilities';
 
 import * as utils from './utilities/utils';
 
+let processedDFsByPath: Object = {};
+let dfsToProcess = [];
+let processedDFs = [];
+let dfsProcessedSinceLastSave = 0;
+const numDfsToProcessPerSave = 50;
+
+
+function getExistingData() {
+  try {
+    const existingProcessedDFsStr: any = fs.readFileSync("dfDB.json");
+    processedDFsByPath = JSON.parse(existingProcessedDFsStr);
+  } catch(err) {
+    console.log("getExistingData: ", err);
+  }
+}
+
 function getRootFolder() {
 
   // let rl = readline.createInterface({
@@ -23,12 +39,13 @@ function getRootFolder() {
   // });
   // /Users/tedshaffer/Documents/Projects/testPhotos
 
+  // const rootFolder = "C:\\Users\\Ted\\Documents\\testPhotos";
+  const rootFolder = "C:\\Users\\Ted\\Documents\\RemovableMedia";
+
   return new Promise( (resolve, reject) => {
-    // resolve("/Users/tedshaffer/Documents/Projects/testPhotos");
-    resolve("C:\\Users\\Ted\\Documents\\testPhotos");
+    resolve(rootFolder);
   });
 }
-
 
 function getAllFiles(rootFolder) {
   return new Promise( (resolve, reject) => {
@@ -39,11 +56,9 @@ function getAllFiles(rootFolder) {
   });
 }
 
-
 function getPhotoFiles(allFiles) {
   return allFiles.filter(utils.isPhotoFile);
 }
-
 
 function hashDF(df) {
 
@@ -119,9 +134,18 @@ function processDF(df) {
   });
 }
 
-let dfsToProcess = [];
-let processedDFs = [];
+function saveResults() {
+  processedDFsByPath = {};
+  processedDFs.forEach( (processedDF) => {
+    processedDFsByPath[processedDF.getPath()] = processedDF;
+  });
+  const processedDFsByPathStr = JSON.stringify(processedDFsByPath, null, 2);
+  fs.writeFileSync('dfDB.json', processedDFsByPathStr);
+  console.log('dfDB.json saved');
+}
+
 function processDFs() {
+
   return new Promise( (resolve, reject) => {
     if (dfsToProcess.length > 0) {
       let dfToProcess = dfsToProcess.shift();
@@ -130,41 +154,47 @@ function processDFs() {
         console.log(processedDF);
         processedDFs.push(processedDF);
         console.log("remaining df's to process: ", dfsToProcess.length);
+
+        if (dfsProcessedSinceLastSave >= numDfsToProcessPerSave) {
+          saveResults();
+          dfsProcessedSinceLastSave = 0;
+        }
+        else {
+          dfsProcessedSinceLastSave++;
+        }
+
         processDFs();
       }).catch( (err) => {
         reject(err);
       });
     }
     else {
-      debugger;
       // HOW DO I NOT GET THIS RESOLVE MIXED UP WITH THE ONE ABOVE??
       // IF THAT'S WHAT'S HAPPENING
       // resolve();
 
-      // put results into a dictionary
-      processedDFs.forEach( (processedDF) => {
-        processedDFsByPath[processedDF.getPath()] = processedDF;
-      });
-      const processedDFsByPathStr = JSON.stringify(processedDFsByPath, null, 2);
-      fs.writeFileSync('dfDB.json', processedDFsByPathStr);
+      saveResults();
 
-      console.log('dfDB.json saved');
       resolve();
     }
   });
 }
 
-let processedDFsByPath: Object = {};
-
 function buildDFDb(photoFilePaths) {
 
+  let numToSkip = 0;
+
   photoFilePaths.forEach( (photoFilePath) => {
-    const df = new DrivePhoto(photoFilePath);
-    dfsToProcess.push(df);
-  })
+
+    // check if the file has already been processed
+    if (!processedDFsByPath[photoFilePath]) {
+      const df = new DrivePhoto(photoFilePath);
+      dfsToProcess.push(df);
+    }
+  });
 
   // only test a subset of all the files.
-  dfsToProcess = dfsToProcess.slice(0, 50);
+  // dfsToProcess = dfsToProcess.slice(0, 50);
 
   processDFs().then( () => {
     // console.log("processDFs complete");
@@ -184,12 +214,6 @@ function buildDFDb(photoFilePaths) {
   });
 }
 
-let existingProcessedDFs = {};
-function readExistingData() {
-  const existingProcessedDFsStr = fs.readFileSync("dfDB.json");
-  existingProcessedDFs = JSON.parse(existingProcessedDFsStr);
-}
-
 /*************************************************************************************************
  *
  *   PROGRAM START
@@ -198,7 +222,7 @@ function readExistingData() {
 console.log("dfDBBBuilder - start");
 console.log("__dirname: ", __dirname);
 
-readExistingData();
+getExistingData();
 
 getRootFolder().then( (rootFolder) => {
   getAllFiles(rootFolder).then( (allFiles) => {
