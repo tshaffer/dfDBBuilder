@@ -21,7 +21,6 @@ function getRootFolder() {
   return new Promise( (resolve, reject) => {
     resolve("/Users/tedshaffer/Documents/Projects/testPhotos");
   });
-
 }
 
 
@@ -34,12 +33,22 @@ function getAllFiles(rootFolder) {
   });
 }
 
+
 function getPhotoFiles(allFiles) {
   let photoFiles = allFiles.filter(utils.isPhotoFile);
   return photoFiles;
 }
 
+
+import { DrivePhoto } from './entities/drivePhoto';
+
 function buildDFDb(photoFilePaths) {
+
+  let dfsToProcess: Array<DrivePhoto> [];
+  photoFilePaths.forEach( (photoFilePath) => {
+    df: DrivePhoto = new DrivePhoto(photoFilePath);
+    dfsToProcess.push(df);
+  })
 
 }
 /*************************************************************************************************
