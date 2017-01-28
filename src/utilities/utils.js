@@ -2,8 +2,8 @@ const photoFileExtensions=[
   'jpg',
   'png',
   // 'psd',
-  // 'tif',
-  // 'tiff'
+  'tif',
+  'tiff'
 ];
 
 function getFileExtension(fileName) {
@@ -45,10 +45,22 @@ function getDateFromString(dateTimeStr) {
   return new Date(year, month, day, hours, minutes, seconds);
 }
 
+export function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+
 module.exports = {
   getFileExtension,
   isJpegFile,
   isPhotoFile,
   isPhoto,
-  getDateFromString
+  getDateFromString,
+  guid
 }

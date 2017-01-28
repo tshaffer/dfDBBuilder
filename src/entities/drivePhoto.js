@@ -4,6 +4,7 @@ export class DrivePhoto {
 
   constructor(path) {
     this.path = path;
+    this.hashablePath = path;
     this.hash = '';
     this.dimensions = this.getPhotoDimensions(path);
     this.lastModified = null;
@@ -29,6 +30,15 @@ export class DrivePhoto {
   getPath() {
     return this.path;
   }
+
+  setHashablePath(hashablePath: string) {
+    this.hashablePath = hashablePath;
+  }
+
+  getHashablePath() {
+    return this.hashablePath;
+  }
+
 
   setHash(hash) {
     this.hash = hash;

@@ -1,3 +1,5 @@
+// @flow
+
 const path = require('path');
 const fs = require('fs');
 const Jimp = require("jimp");
@@ -6,6 +8,7 @@ const nodeDir = require('node-dir');
 
 import { DrivePhoto } from './entities/drivePhoto';
 import * as dateMatcher from './utilities/dateMatcher';
+import { convertPhoto } from './utilities/photoUtilities';
 
 import * as utils from './utilities/utils';
 
@@ -44,9 +47,9 @@ function getPhotoFiles(allFiles) {
 
 function hashDF(df) {
 
-  console.log("hashDF invoked - hash file: ", df.getPath());
+  console.log("hashDF invoked - hash file: ", df.getHashablePath());
   return new Promise( (resolve, reject) => {
-    Jimp.read(df.getPath()).then((image) => {
+    Jimp.read(df.getHashablePath()).then((image) => {
       const hashValue = image.hash(2);
       resolve(hashValue);
     }).catch( (err) => {
@@ -55,24 +58,64 @@ function hashDF(df) {
   });
 }
 
+function makeHashable(df: DrivePhoto) {
+
+  return new Promise( (resolve, reject) => {
+    const dfPath = df.getPath();
+    const extension = path.extname(dfPath).toLowerCase();
+    // if (extension === '.tif' || extension === '.tiff') {
+    if (extension === '.tif' || extension === '.tiff') {
+      // jimp doesn't support tif - convert to jpg here for hash comparison
+      let dfName = path.basename(dfPath).toLowerCase();
+      let fileNameWithoutExtension = dfName.slice(0, -4);
+      dfName = fileNameWithoutExtension + ".jpg";
+
+      const targetDir = "C:\\Users\\Ted\\Documents\\Projects\\photoSyncATron\\tmpFiles";
+      const guid = utils.guid();
+      let targetPath = path.join(targetDir, fileNameWithoutExtension + guid + ".jpg");
+      console.log('convertPhoto then perform hash compare: ', dfPath);
+
+      let promise = convertPhoto(dfPath, targetPath);
+      promise.then( () => {
+        // converted file should be at targetPath
+        // TODO - don't know why, but it appears as though sometimes a '-0' is appended to the photo file name
+        if (!fs.existsSync(targetPath)) {
+          console.log(targetPath, ' converted file does not exist');
+          targetPath = path.join(targetDir, fileNameWithoutExtension + guid + "-0.jpg");
+          if (!fs.existsSync(targetPath)) {
+            debugger;
+          }
+        }
+        df.setHashablePath(targetPath);
+        resolve(df);
+      });
+    }
+    else {
+      resolve(df);
+    }
+  });
+}
+
 function processDF(df) {
   return new Promise( (resolve, reject) => {
 
-    // first step - get hash
-    hashDF(df).then( (hashValue) => {
-      df.setHash(hashValue);
+    // first step - convert to hashable file type
+    makeHashable(df).then( (df) => {
 
-      // next step - get date/times
+      // next step - get hash
+      hashDF(df).then( (hashValue) => {
+        df.setHash(hashValue);
 
-      dateMatcher.getDFDateTimes(df).then( () => {
+        // next step - get date/times
+        dateMatcher.getDFDateTimes(df).then( () => {
+          // after all steps are complete, resolve
+          resolve(df);
 
-        // after all steps are complete, resolve
-        resolve(df);
-
-      }).catch( (err) => {
-        reject(err);
-      });
-    })
+        }).catch( (err) => {
+          reject(err);
+        });
+      })
+    });
   });
 }
 
@@ -94,10 +137,24 @@ function processDFs() {
     }
     else {
       debugger;
+      // HOW DO I NOT GET THIS RESOLVE MIXED UP WITH THE ONE ABOVE??
+      // IF THAT'S WHAT'S HAPPENING
+      // resolve();
+
+      // put results into a dictionary
+      processedDFs.forEach( (processedDF) => {
+        processedDFsByPath[processedDF.getPath()] = processedDF;
+      });
+      const processedDFsByPathStr = JSON.stringify(processedDFsByPath, null, 2);
+      fs.writeFileSync('dfDB.json', processedDFsByPathStr);
+
+      console.log('dfDB.json saved');
       resolve();
     }
   });
 }
+
+let processedDFsByPath: Object = {};
 
 function buildDFDb(photoFilePaths) {
 
@@ -107,11 +164,20 @@ function buildDFDb(photoFilePaths) {
   })
 
   // only test a subset of all the files.
-  dfsToProcess = dfsToProcess.slice(0, 5);
+  dfsToProcess = dfsToProcess.slice(0, 50);
 
   processDFs().then( () => {
-    console.log("processDFs complete");
-    debugger;
+    // console.log("processDFs complete");
+    //
+    // // put results into a dictionary
+    // processedDFs.forEach( (processedDF) => {
+    //   processedDFsByPath[processedDF.getPath()] = processedDF;
+    // });
+    // const processedDFsByPathStr = JSON.stringify(processedDFsByPath, null, 2);
+    // fs.writeFileSync('dfDB.json', processedDFsByPathStr);
+    //
+    // console.log('dfDB.json saved');
+    console.log("dfDBBuilder complete");
   }).catch( (err) => {
     console.log(err);
     debugger;
