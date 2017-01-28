@@ -1,9 +1,11 @@
+// @flow
+
 const path = require('path');
 const fs = require('fs');
 const readline = require('readline');
 const nodeDir = require('node-dir');
 
-const utils = require('./utils');
+import * as utils from './utils/utils';
 
 function getRootFolder() {
 
@@ -14,6 +16,7 @@ function getRootFolder() {
   // rl.question('Enter the path to the root folder: ', (rootFolder) => {
   //   resolve(rootFolder);
   // });
+  // /Users/tedshaffer/Documents/Projects/testPhotos
 
   return new Promise( (resolve, reject) => {
     resolve("/Users/tedshaffer/Documents/Projects/testPhotos");
@@ -33,11 +36,12 @@ function getAllFiles(rootFolder) {
 
 function getPhotoFiles(allFiles) {
   let photoFiles = allFiles.filter(utils.isPhotoFile);
-  console.log("Photos on drive: ", photoFiles.length);
   return photoFiles;
 }
 
+function buildDFDb(photoFilePaths) {
 
+}
 /*************************************************************************************************
  *
  *   PROGRAM START
@@ -48,30 +52,7 @@ console.log("__dirname: ", __dirname);
 
 getRootFolder().then( (rootFolder) => {
   getAllFiles(rootFolder).then( (allFiles) => {
-    let photoFiles = getPhotoFiles(allFiles);
-    console.log('poo');
+    let photoFilePaths = getPhotoFiles(allFiles);
+    console.log("Photos on drive: ", photoFilePaths.length);
   })
 })
-
-
-
-  // nodeDir.files(rootFolder, (err, photoFiles) => {
-  //
-  //   if (err) throw err;
-  //   photoFiles = photoFiles.filter(utils.isPhotoFile);
-  //
-
-
-    // let promises = [];
-    // files.forEach( (file) => {
-    //   promise = findFile(file);
-    //   promises.push(promise);
-    // });
-    // Promise.all(promises).then( (searchResults) => {
-    //   saveSearchResults(searchResults);
-    // });
-  // });
-
-// });
-
-// /Users/tedshaffer/Documents/Projects/testPhotos

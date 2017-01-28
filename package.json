@@ -2,10 +2,11 @@
   "name": "df-db-builder",
   "version": "0.0.1",
   "description": "Builds a database of drive photos",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "build": "webpack --config ./webpack.config.js --watch",
-    "run": "node build/bundle.js"
+    "run": "node build/bundle.js",
+    "flow": "flow check"
   },
   "author": "Ted Shaffer",
   "license": "ISC",
