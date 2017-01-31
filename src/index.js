@@ -40,7 +40,8 @@ function getRootFolder() {
   // /Users/tedshaffer/Documents/Projects/testPhotos
 
   // const rootFolder = "C:\\Users\\Ted\\Documents\\testPhotos";
-  const rootFolder = "C:\\Users\\Ted\\Documents\\RemovableMedia";
+  // const rootFolder = "C:\\Users\\Ted\\Documents\\RemovableMedia";
+  const rootFolder = "E:\\RemovableMedia";
 
   return new Promise( (resolve, reject) => {
     resolve(rootFolder);
@@ -114,6 +115,9 @@ function makeHashable(df: DrivePhoto) {
 function processDF(df) {
   return new Promise( (resolve, reject) => {
 
+    console.log('Process DF:');
+    console.log(df);
+
     // first step - convert to hashable file type
     makeHashable(df).then( (df) => {
 
@@ -182,16 +186,21 @@ function processDFs() {
 
 function buildDFDb(photoFilePaths) {
 
-  let numToSkip = 0;
+  let filesSkipped = 0;
 
   photoFilePaths.forEach( (photoFilePath) => {
 
-    // check if the file has already been processed
-    if (!processedDFsByPath[photoFilePath]) {
+    // check if the file has already been processed or is blacklisted
+    if ( !processedDFsByPath[photoFilePath] && photoFilePath.indexOf('PA070457.JPG') < 0  && photoFilePath.indexOf('PA070458.JPG') < 0) {
       const df = new DrivePhoto(photoFilePath);
       dfsToProcess.push(df);
     }
+    else {
+      filesSkipped++;
+    }
   });
+
+  console.log('######################## Number of files skipped: ', filesSkipped);
 
   // only test a subset of all the files.
   // dfsToProcess = dfsToProcess.slice(0, 50);

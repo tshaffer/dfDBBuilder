@@ -18,7 +18,9 @@ export class DrivePhoto {
     let dimensions = null;
 
     try {
-      dimensions = sizeOf(photoFilePath);
+      if (photoFilePath.indexOf('DSC_0017.JPG') < 0) {
+        dimensions = sizeOf(photoFilePath);
+      }
     } catch (sizeOfError) {
       console.log(sizeOfError, " invoking sizeOf on: ", photoFilePath);
     }
